@@ -15,24 +15,26 @@ El objetivo de la app es solucionar la falta de visibilidad del inventario en ti
 
 ### Desarrollado hasta el momento
 - [x] Modelos de Datos: Definición de entidades de productos médicos, categorías y historial de movimientos.
-- [x] Catálogo de Insumos: Pantalla con búsqueda integrada por nombre/SKU/ubicación y filtros dinámicos por categoría.
-- [x] Alertas de Stock Bajo: Destacado visual en tarjetas para productos que alcanzaron su nivel mínimo.
-- [x] Historial de Movimientos: Vista limpia que distingue entre entradas (recepción) y salidas (ventas).
-- [x] Pantalla de Alertas: Sección dedicada para revisar insumos críticos que requieren reposición.
-- [x] Navegación Base: Navegación por pestañas inferiores (Bottom Navigation) con Jetpack Compose.
+- [x] Catálogo de Insumos: Pantalla con búsqueda integrada por nombre/SKU/ubicación, barra de nivel de stock y filtros por categoría.
+- [x] Alertas de Stock Bajo: Destacado visual con pulso en tarjetas para productos en nivel crítico.
+- [x] Historial de Movimientos: Registro sincronizado que distingue entre entradas (recepción) y salidas (ventas/mermas).
+- [x] Almacenamiento Local (SQLite via Room): Persistencia de datos local completa con Room Database, DAOs y Repositorio.
+- [x] Gestión de Estado (ViewModel): Arquitectura MVVM con StateFlow para reactividad en tiempo real.
+- [x] Formularios Validados: Validación visual en tiempo real en creación, edición y registro de movimientos.
+- [x] Confirmación de Seguridad: Doble verificación exigiendo confirmación escrita en mayúsculas para eliminación de insumos.
+- [x] Recursos Nativos del Dispositivo: Integración de Motor de Vibración Háptica (`VibratorManager`) y Notificaciones Locales del Sistema (`NotificationManager`).
+- [x] Componentes Animados e Interacción: Selector elástico deslizante `SelectorSquishTipoMovimiento`, diálogo de éxito rebotando `DialogoExitoAnimado` y transiciones de zoom en la navegación.
 
 ### Próximas funcionalidades
-- [ ] Persistencia de Datos (Room DB): Guardado local automático de productos y movimientos en el dispositivo.
-- [ ] Pantalla de Detalle: Ficha completa de cada producto con opción de compra o venta directa.
-- [ ] Registro Dinámico de Movimientos: Formulario para ingresar ventas/entradas descontando stock en tiempo real.
-- [ ] Gestión de Productos: Formulario para agregar y editar nuevos insumos.
-- [ ] Notificaciones de Stock: Avisos en el dispositivo al llegar al nivel mínimo de existencias.
 - [ ] Lector QR / Código de Barras: Búsqueda rápida mediante cámara.
+- [ ] Exportación de Reportes: Generación de reportes PDF/Excel de inventario.
 
 ---
 
 ## Tecnologías Utilizadas
 - Lenguaje: Kotlin
 - Diseño de Interfaz: Jetpack Compose + Material 3
-- Navegación: Navigation Compose
+- Persistencia Local: Room Database (SQLite)
+- Arquitectura: MVVM (ViewModel + StateFlow + Repository)
+- Navegación: Navigation Compose con transiciones animadas
 - Entorno: Android Studio
