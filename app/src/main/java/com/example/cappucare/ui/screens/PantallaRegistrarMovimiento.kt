@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ import com.example.cappucare.data.model.Producto
 import com.example.cappucare.data.model.TipoMovimiento
 import com.example.cappucare.ui.components.DialogoExitoAnimado
 import com.example.cappucare.ui.components.SelectorSquishTipoMovimiento
+import com.example.cappucare.ui.utils.NotificacionHelper
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +34,7 @@ fun PantallaRegistrarMovimiento(
     onBackClick: () -> Unit,
     onSuccess: () -> Unit
 ) {
+    val context = LocalContext.current
     var product by remember { mutableStateOf<Producto?>(null) }
     var tipo by remember {
         mutableStateOf(
@@ -260,14 +263,30 @@ fun PantallaRegistrarMovimiento(
                 Button(
                     onClick = {
                         if (validarFormulario()) {
+                            val cantidadVal = cantidadText.toInt()
+                            val nuevoStockCalculado = if (tipo == TipoMovimiento.INGRESO) {
+                                currentProduct.cantidadDisponible + cantidadVal
+                            } else {
+                                currentProduct.cantidadDisponible - cantidadVal
+                            }
+
                             viewModel.registrarMovimiento(
                                 productoId = currentProduct.id,
                                 productoNombre = currentProduct.nombre,
                                 tipo = tipo,
-                                cantidad = cantidadText.toInt(),
+                                cantidad = cantidadVal,
                                 motivo = motivo,
                                 usuarioResponsable = usuarioResponsable,
-                                onSuccess = { showSuccessDialog = true },
+                                onSuccess = {
+                                    if (nuevoStockCalculado <= currentProduct.stockMinimo) {
+                                        NotificacionHelper.enviarNotificacionStockBajo(
+                                            context = context,
+                                            nombreProducto = currentProduct.nombre,
+                                            stockActual = nuevoStockCalculado
+                                        )
+                                    }
+                                    showSuccessDialog = true
+                                },
                                 onError = { msg -> generalError = msg }
                             )
                         }

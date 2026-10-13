@@ -24,9 +24,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.cappucare.data.model.TipoMovimiento
+import com.example.cappucare.ui.utils.VibradorHelper
 
 @Composable
 fun SelectorSquishTipoMovimiento(
@@ -34,6 +36,7 @@ fun SelectorSquishTipoMovimiento(
     onTipoSelected: (TipoMovimiento) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val targetTarget = if (selectedTipo == TipoMovimiento.INGRESO) 0f else 1f
     val targetBias = if (selectedTipo == TipoMovimiento.INGRESO) -1f else 1f
 
@@ -92,7 +95,10 @@ fun SelectorSquishTipoMovimiento(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { onTipoSelected(TipoMovimiento.INGRESO) },
+                    ) {
+                        VibradorHelper.vibrarSuave(context)
+                        onTipoSelected(TipoMovimiento.INGRESO)
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -119,7 +125,10 @@ fun SelectorSquishTipoMovimiento(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
-                    ) { onTipoSelected(TipoMovimiento.SALIDA) },
+                    ) {
+                        VibradorHelper.vibrarSuave(context)
+                        onTipoSelected(TipoMovimiento.SALIDA)
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {

@@ -14,12 +14,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cappucare.data.model.Producto
 import com.example.cappucare.data.model.TipoMovimiento
 import com.example.cappucare.ui.components.SelectorSquishTipoMovimiento
+import com.example.cappucare.ui.utils.VibradorHelper
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +33,7 @@ fun PantallaDetalleProducto(
     onEditClick: (String) -> Unit,
     onRegisterMovementClick: (String, String) -> Unit
 ) {
+    val context = LocalContext.current
     var product by remember { mutableStateOf<Producto?>(null) }
     var showFirstDeleteDialog by remember { mutableStateOf(false) }
     var showSecondDeleteDialog by remember { mutableStateOf(false) }
@@ -105,6 +108,7 @@ fun PantallaDetalleProducto(
                 Button(
                     onClick = {
                         if (confirmationText == "ELIMINAR") {
+                            VibradorHelper.vibrarSuave(context)
                             product?.let { p ->
                                 viewModel.eliminarProducto(p) {
                                     showSecondDeleteDialog = false

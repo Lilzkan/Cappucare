@@ -1,6 +1,5 @@
 package com.example.cappucare.ui.components
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -14,10 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.cappucare.ui.utils.VibradorHelper
 import kotlinx.coroutines.delay
 
 @Composable
@@ -27,9 +28,11 @@ fun DialogoExitoAnimado(
     onFinished: () -> Unit
 ) {
     if (visible) {
+        val context = LocalContext.current
         var animateIcon by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
+            VibradorHelper.vibrarSuave(context)
             animateIcon = true
             delay(1200)
             onFinished()
