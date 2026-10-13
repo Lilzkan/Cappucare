@@ -80,8 +80,8 @@ fun PantallaMovimientos(
 @Composable
 fun TarjetaMovimiento(movement: Movimiento) {
     val isIngreso = movement.tipo == TipoMovimiento.INGRESO
-    val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-    val formattedDate = dateFormat.format(Date(movement.fechaHora))
+    val dateFormat = remember { SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()) }
+    val formattedDate = remember(movement.fechaHora) { dateFormat.format(Date(movement.fechaHora)) }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
