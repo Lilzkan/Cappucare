@@ -19,8 +19,11 @@ sealed class Screen(
         fun createRoute(productId: String) = "product_detail/$productId"
     }
     object AddProduct : Screen("add_product", "Nuevo Producto")
-    object RegisterMovement : Screen("register_movement/{productId}", "Registrar Movimiento") {
-        fun createRoute(productId: String) = "register_movement/$productId"
+    object EditProduct : Screen("edit_product/{productId}", "Editar Producto") {
+        fun createRoute(productId: String) = "edit_product/$productId"
+    }
+    object RegisterMovement : Screen("register_movement/{productId}?tipo={tipo}", "Registrar Movimiento") {
+        fun createRoute(productId: String, tipo: String = "") = "register_movement/$productId?tipo=$tipo"
     }
 }
 
