@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MovimientoDao {
     @Query("SELECT * FROM movimientos ORDER BY fechaHora DESC")
-    fun getAllMovimientos(): Flow<List<Movimiento>>
+    fun obtenerTodosLosMovimientos(): Flow<List<Movimiento>>
 
     @Query("SELECT * FROM movimientos WHERE productoId = :productoId ORDER BY fechaHora DESC")
-    fun getMovimientosByProducto(productoId: String): Flow<List<Movimiento>>
+    fun obtenerMovimientosPorProducto(productoId: String): Flow<List<Movimiento>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMovimiento(movimiento: Movimiento)
+    suspend fun insertarMovimiento(movimiento: Movimiento)
 }

@@ -45,23 +45,23 @@ abstract class AppDatabase : RoomDatabase() {
                 super.onOpen(db)
                 INSTANCE?.let { database ->
                     CoroutineScope(Dispatchers.IO).launch {
-                        populateDatabase(database)
+                        poblarBaseDeDatos(database)
                     }
                 }
             }
 
-            suspend fun populateDatabase(db: AppDatabase) {
+            suspend fun poblarBaseDeDatos(db: AppDatabase) {
                 val productoDao = db.productoDao()
                 val movimientoDao = db.movimientoDao()
 
                 MockData.sampleProducts.forEach { product ->
-                    if (productoDao.getProductoById(product.id) == null) {
-                        productoDao.insertProducto(product)
+                    if (productoDao.obtenerProductoPorId(product.id) == null) {
+                        productoDao.insertarProducto(product)
                     }
                 }
 
                 MockData.sampleMovements.forEach { movement ->
-                    movimientoDao.insertMovimiento(movement)
+                    movimientoDao.insertarMovimiento(movement)
                 }
             }
         }

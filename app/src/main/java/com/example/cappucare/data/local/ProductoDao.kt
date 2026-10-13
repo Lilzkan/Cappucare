@@ -7,25 +7,25 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ProductoDao {
     @Query("SELECT * FROM productos ORDER BY nombre ASC")
-    fun getAllProductos(): Flow<List<Producto>>
+    fun obtenerTodosLosProductos(): Flow<List<Producto>>
 
     @Query("SELECT * FROM productos WHERE id = :id")
-    suspend fun getProductoById(id: String): Producto?
+    suspend fun obtenerProductoPorId(id: String): Producto?
 
     @Query("SELECT * FROM productos WHERE cantidadDisponible <= stockMinimo ORDER BY cantidadDisponible ASC")
-    fun getProductosStockBajo(): Flow<List<Producto>>
+    fun obtenerProductosStockBajo(): Flow<List<Producto>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertProducto(producto: Producto)
+    suspend fun insertarProducto(producto: Producto)
 
     @Update
-    suspend fun updateProducto(producto: Producto)
+    suspend fun actualizarProducto(producto: Producto)
 
     @Delete
-    suspend fun deleteProducto(producto: Producto)
+    suspend fun eliminarProducto(producto: Producto)
 
     @Query("INSERT INTO productos (id, nombre, descripcion, categoria, cantidadDisponible, unidadMedida, stockMinimo, ubicacion, estado) VALUES (:id, :nombre, :descripcion, :categoria, :cantidadDisponible, :unidadMedida, :stockMinimo, :ubicacion, :estado)")
-    suspend fun insertRaw(
+    suspend fun insertarDirecto(
         id: String,
         nombre: String,
         descripcion: String,

@@ -11,28 +11,28 @@ class CappucareRepository(
     private val productoDao: ProductoDao,
     private val movimientoDao: MovimientoDao
 ) {
-    val allProductos: Flow<List<Producto>> = productoDao.getAllProductos()
-    val productosStockBajo: Flow<List<Producto>> = productoDao.getProductosStockBajo()
-    val allMovimientos: Flow<List<Movimiento>> = movimientoDao.getAllMovimientos()
+    val todosLosProductos: Flow<List<Producto>> = productoDao.obtenerTodosLosProductos()
+    val productosStockBajo: Flow<List<Producto>> = productoDao.obtenerProductosStockBajo()
+    val todosLosMovimientos: Flow<List<Movimiento>> = movimientoDao.obtenerTodosLosMovimientos()
 
-    suspend fun getProductoById(id: String): Producto? {
-        return productoDao.getProductoById(id)
+    suspend fun obtenerProductoPorId(id: String): Producto? {
+        return productoDao.obtenerProductoPorId(id)
     }
 
-    fun getMovimientosByProducto(productoId: String): Flow<List<Movimiento>> {
-        return movimientoDao.getMovimientosByProducto(productoId)
+    fun obtenerMovimientosPorProducto(productoId: String): Flow<List<Movimiento>> {
+        return movimientoDao.obtenerMovimientosPorProducto(productoId)
     }
 
-    suspend fun insertOrUpdateProducto(producto: Producto) {
-        productoDao.insertProducto(producto)
+    suspend fun insertarOActualizarProducto(producto: Producto) {
+        productoDao.insertarProducto(producto)
     }
 
-    suspend fun deleteProducto(producto: Producto) {
-        productoDao.deleteProducto(producto)
+    suspend fun eliminarProducto(producto: Producto) {
+        productoDao.eliminarProducto(producto)
     }
 
     suspend fun registrarMovimiento(movimiento: Movimiento): Boolean {
-        val producto = productoDao.getProductoById(movimiento.productoId) ?: return false
+        val producto = productoDao.obtenerProductoPorId(movimiento.productoId) ?: return false
 
         val nuevaCantidad = if (movimiento.tipo == TipoMovimiento.INGRESO) {
             producto.cantidadDisponible + movimiento.cantidad
@@ -42,8 +42,8 @@ class CappucareRepository(
         }
 
         val productoActualizado = producto.copy(cantidadDisponible = nuevaCantidad)
-        productoDao.updateProducto(productoActualizado)
-        movimientoDao.insertMovimiento(movimiento)
+        productoDao.actualizarProducto(productoActualizado)
+        movimientoDao.insertarMovimiento(movimiento)
         return true
     }
 }
