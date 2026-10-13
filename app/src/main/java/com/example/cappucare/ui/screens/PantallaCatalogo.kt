@@ -32,9 +32,9 @@ fun PantallaCatalogo(
     onProductClick: (String) -> Unit = {},
     onAddProductClick: () -> Unit = {}
 ) {
-    val searchQuery by viewModel.searchQuery.collectAsState()
-    val selectedCategory by viewModel.selectedCategory.collectAsState()
-    val filteredProducts by viewModel.filteredProductos.collectAsState()
+    val consultaBusqueda by viewModel.consultaBusqueda.collectAsState()
+    val categoriaSeleccionada by viewModel.categoriaSeleccionada.collectAsState()
+    val productosFiltrados by viewModel.productosFiltrados.collectAsState()
 
     Scaffold(
         floatingActionButton = {
@@ -56,8 +56,8 @@ fun PantallaCatalogo(
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
-                value = searchQuery,
-                onValueChange = { viewModel.searchQuery.value = it },
+                value = consultaBusqueda,
+                onValueChange = { viewModel.consultaBusqueda.value = it },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Buscar por nombre, SKU o ubicación...") },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
@@ -73,17 +73,17 @@ fun PantallaCatalogo(
             ) {
                 item {
                     FilterChip(
-                        selected = selectedCategory == null,
-                        onClick = { viewModel.selectedCategory.value = null },
+                        selected = categoriaSeleccionada == null,
+                        onClick = { viewModel.categoriaSeleccionada.value = null },
                         label = { Text("Todas") },
                         shape = RoundedCornerShape(20.dp)
                     )
                 }
                 items(Categoria.entries.toTypedArray()) { category ->
                     FilterChip(
-                        selected = selectedCategory == category,
+                        selected = categoriaSeleccionada == category,
                         onClick = {
-                            viewModel.selectedCategory.value = if (selectedCategory == category) null else category
+                            viewModel.categoriaSeleccionada.value = if (categoriaSeleccionada == category) null else category
                         },
                         label = { Text(category.displayName) },
                         shape = RoundedCornerShape(20.dp)
@@ -94,7 +94,7 @@ fun PantallaCatalogo(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                text = "${filteredProducts.size} insumos encontrados",
+                text = "${productosFiltrados.size} insumos encontrados",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -102,7 +102,7 @@ fun PantallaCatalogo(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            if (filteredProducts.isEmpty()) {
+            if (productosFiltrados.isEmpty()) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -120,7 +120,7 @@ fun PantallaCatalogo(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 80.dp)
                 ) {
-                    items(filteredProducts, key = { it.id }) { product ->
+                    items(productosFiltrados, key = { it.id }) { product ->
                         AnimatedVisibility(
                             visible = true,
                             enter = fadeIn() + expandVertically(),

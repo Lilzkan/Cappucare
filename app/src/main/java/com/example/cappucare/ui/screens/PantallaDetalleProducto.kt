@@ -40,9 +40,9 @@ fun PantallaDetalleProducto(
     var confirmationText by remember { mutableStateOf("") }
     var selectedTipoOperation by remember { mutableStateOf(TipoMovimiento.INGRESO) }
 
-    val allProducts by viewModel.allProductos.collectAsState()
-    val movementsFlow = remember(productId) { viewModel.getMovimientosByProducto(productId) }
-    val productMovements by movementsFlow.collectAsState(initial = emptyList())
+    val todosLosProductos by viewModel.todosLosProductos.collectAsState()
+    val movimientosFlow = remember(productId) { viewModel.obtenerMovimientosPorProducto(productId) }
+    val productMovements by movimientosFlow.collectAsState(initial = emptyList())
 
     val infiniteTransition = rememberInfiniteTransition(label = "DetailBadgePulse")
     val pulseScale by infiniteTransition.animateFloat(
@@ -55,8 +55,8 @@ fun PantallaDetalleProducto(
         label = "PulseScale"
     )
 
-    LaunchedEffect(productId, allProducts) {
-        product = allProducts.find { it.id == productId }
+    LaunchedEffect(productId, todosLosProductos) {
+        product = todosLosProductos.find { it.id == productId }
     }
 
     if (showFirstDeleteDialog && product != null) {

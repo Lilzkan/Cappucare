@@ -53,10 +53,10 @@ fun PantallaRegistrarMovimiento(
 
     var showSuccessDialog by remember { mutableStateOf(false) }
 
-    val allProducts by viewModel.allProductos.collectAsState()
+    val todosLosProductos by viewModel.todosLosProductos.collectAsState()
 
-    LaunchedEffect(productId, allProducts) {
-        product = allProducts.find { it.id == productId }
+    LaunchedEffect(productId, todosLosProductos) {
+        product = todosLosProductos.find { it.id == productId }
     }
 
     DialogoExitoAnimado(

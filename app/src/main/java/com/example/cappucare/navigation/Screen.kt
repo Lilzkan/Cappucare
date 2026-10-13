@@ -11,24 +11,24 @@ sealed class Screen(
     val title: String,
     val icon: ImageVector? = null
 ) {
-    object Catalog : Screen("catalog", "Catálogo", Icons.Filled.Inventory)
-    object Movements : Screen("movements", "Historial", Icons.Filled.History)
-    object Alerts : Screen("alerts", "Stock Bajo", Icons.Filled.Warning)
+    object Catalogo : Screen("catalog", "Catálogo", Icons.Filled.Inventory)
+    object Historial : Screen("movements", "Historial", Icons.Filled.History)
+    object Alertas : Screen("alerts", "Stock Bajo", Icons.Filled.Warning)
 
-    object ProductDetail : Screen("product_detail/{productId}", "Detalle") {
-        fun createRoute(productId: String) = "product_detail/$productId"
+    object DetalleProducto : Screen("product_detail/{productId}", "Detalle") {
+        fun crearRuta(productId: String) = "product_detail/$productId"
     }
-    object AddProduct : Screen("add_product", "Nuevo Producto")
-    object EditProduct : Screen("edit_product/{productId}", "Editar Producto") {
-        fun createRoute(productId: String) = "edit_product/$productId"
+    object AgregarProducto : Screen("add_product", "Nuevo Producto")
+    object EditarProducto : Screen("edit_product/{productId}", "Editar Producto") {
+        fun crearRuta(productId: String) = "edit_product/$productId"
     }
-    object RegisterMovement : Screen("register_movement/{productId}?tipo={tipo}", "Registrar Movimiento") {
-        fun createRoute(productId: String, tipo: String = "") = "register_movement/$productId?tipo=$tipo"
+    object RegistrarMovimiento : Screen("register_movement/{productId}?tipo={tipo}", "Registrar Movimiento") {
+        fun crearRuta(productId: String, tipo: String = "") = "register_movement/$productId?tipo=$tipo"
     }
 }
 
-val bottomNavScreens = listOf(
-    Screen.Catalog,
-    Screen.Movements,
-    Screen.Alerts
+val pantallasNavegacionInferior = listOf(
+    Screen.Catalogo,
+    Screen.Historial,
+    Screen.Alertas
 )

@@ -30,7 +30,7 @@ object NotificacionHelper {
             crearCanalNotificaciones(context)
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.mipmap.ic_launcher)
+                .setSmallIcon(R.drawable.ic_launcher_background)
                 .setContentTitle("Alerta de Stock Crítico - Cappucare")
                 .setContentText("El insumo '$nombreProducto' alcanzó nivel bajo (Quedan: $stockActual unidades).")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)

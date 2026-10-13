@@ -44,11 +44,11 @@ fun PantallaFormularioProducto(
     var showSuccessDialog by remember { mutableStateOf(false) }
 
     val isEditing = !productIdToEdit.isNullOrEmpty()
-    val allProducts by viewModel.allProductos.collectAsState()
+    val todosLosProductos by viewModel.todosLosProductos.collectAsState()
 
-    LaunchedEffect(productIdToEdit, allProducts) {
+    LaunchedEffect(productIdToEdit, todosLosProductos) {
         if (isEditing) {
-            val existing = allProducts.find { it.id == productIdToEdit }
+            val existing = todosLosProductos.find { it.id == productIdToEdit }
             existing?.let { p ->
                 id = p.id
                 nombre = p.nombre

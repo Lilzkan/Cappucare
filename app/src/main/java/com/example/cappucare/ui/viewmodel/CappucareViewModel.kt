@@ -16,20 +16,20 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val repository: CappucareRepository
 
-    val allProductos: StateFlow<List<Producto>>
+    val todosLosProductos: StateFlow<List<Producto>>
     val productosStockBajo: StateFlow<List<Producto>>
-    val allMovimientos: StateFlow<List<Movimiento>>
+    val todosLosMovimientos: StateFlow<List<Movimiento>>
 
-    val searchQuery = MutableStateFlow("")
-    val selectedCategory = MutableStateFlow<Categoria?>(null)
+    val consultaBusqueda = MutableStateFlow("")
+    val categoriaSeleccionada = MutableStateFlow<Categoria?>(null)
 
-    val filteredProductos: StateFlow<List<Producto>>
+    val productosFiltrados: StateFlow<List<Producto>>
 
     init {
         val database = AppDatabase.getDatabase(application)
         repository = CappucareRepository(database.productoDao(), database.movimientoDao())
 
-        allProductos = repository.allProductos.stateIn(
+        todosLosProductos = repository.todosLosProductos.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
@@ -41,13 +41,13 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
             initialValue = emptyList()
         )
 
-        allMovimientos = repository.allMovimientos.stateIn(
+        todosLosMovimientos = repository.todosLosMovimientos.stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
 
-        filteredProductos = combine(allProductos, searchQuery, selectedCategory) { list, query, category ->
+        productosFiltrados = combine(todosLosProductos, consultaBusqueda, categoriaSeleccionada) { list, query, category ->
             list.filter { product ->
                 val matchesQuery = query.isEmpty() ||
                         product.nombre.contains(query, ignoreCase = true) ||
@@ -63,12 +63,12 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
         )
     }
 
-    suspend fun getProductoById(id: String): Producto? {
-        return repository.getProductoById(id)
+    suspend fun obtenerProductoPorId(id: String): Producto? {
+        return repository.obtenerProductoPorId(id)
     }
 
-    fun getMovimientosByProducto(productoId: String): Flow<List<Movimiento>> {
-        return repository.getMovimientosByProducto(productoId)
+    fun obtenerMovimientosPorProducto(productoId: String): Flow<List<Movimiento>> {
+        return repository.obtenerMovimientosPorProducto(productoId)
     }
 
     fun guardarProducto(
@@ -95,7 +95,7 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
                 ubicacion = ubicacion.trim(),
                 estado = estado
             )
-            repository.insertOrUpdateProducto(producto)
+            repository.insertarOActualizarProducto(producto)
             onSuccess()
         }
     }
@@ -132,7 +132,7 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun eliminarProducto(producto: Producto, onSuccess: () -> Unit) {
         viewModelScope.launch {
-            repository.deleteProducto(producto)
+            repository.eliminarProducto(producto)
             onSuccess()
         }
     }

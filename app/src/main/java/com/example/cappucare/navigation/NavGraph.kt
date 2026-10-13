@@ -20,38 +20,38 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Catalog.route,
+        startDestination = Screen.Catalogo.route,
         modifier = modifier,
         enterTransition = { fadeIn(animationSpec = tween(300)) },
         exitTransition = { fadeOut(animationSpec = tween(300)) }
     ) {
-        composable(Screen.Catalog.route) {
+        composable(Screen.Catalogo.route) {
             PantallaCatalogo(
                 viewModel = viewModel,
                 onProductClick = { productId ->
-                    navController.navigate(Screen.ProductDetail.createRoute(productId))
+                    navController.navigate(Screen.DetalleProducto.crearRuta(productId))
                 },
                 onAddProductClick = {
-                    navController.navigate(Screen.AddProduct.route)
+                    navController.navigate(Screen.AgregarProducto.route)
                 }
             )
         }
 
-        composable(Screen.Movements.route) {
+        composable(Screen.Historial.route) {
             PantallaMovimientos(viewModel = viewModel)
         }
 
-        composable(Screen.Alerts.route) {
+        composable(Screen.Alertas.route) {
             PantallaAlertas(
                 viewModel = viewModel,
                 onProductClick = { productId ->
-                    navController.navigate(Screen.ProductDetail.createRoute(productId))
+                    navController.navigate(Screen.DetalleProducto.crearRuta(productId))
                 }
             )
         }
 
         composable(
-            route = Screen.ProductDetail.route,
+            route = Screen.DetalleProducto.route,
             arguments = listOf(navArgument("productId") { type = NavType.StringType }),
             enterTransition = {
                 fadeIn(animationSpec = tween(300)) +
@@ -78,16 +78,16 @@ fun NavGraph(
                 viewModel = viewModel,
                 onBackClick = { navController.popBackStack() },
                 onEditClick = { id ->
-                    navController.navigate(Screen.EditProduct.createRoute(id))
+                    navController.navigate(Screen.EditarProducto.crearRuta(id))
                 },
                 onRegisterMovementClick = { id, tipo ->
-                    navController.navigate(Screen.RegisterMovement.createRoute(id, tipo))
+                    navController.navigate(Screen.RegistrarMovimiento.crearRuta(id, tipo))
                 }
             )
         }
 
         composable(
-            route = Screen.AddProduct.route,
+            route = Screen.AgregarProducto.route,
             enterTransition = {
                 fadeIn(animationSpec = tween(300)) +
                         scaleIn(initialScale = 0.9f, animationSpec = tween(300)) +
@@ -106,7 +106,7 @@ fun NavGraph(
         }
 
         composable(
-            route = Screen.EditProduct.route,
+            route = Screen.EditarProducto.route,
             arguments = listOf(navArgument("productId") { type = NavType.StringType }),
             enterTransition = {
                 fadeIn(animationSpec = tween(300)) +
@@ -127,7 +127,7 @@ fun NavGraph(
         }
 
         composable(
-            route = Screen.RegisterMovement.route,
+            route = Screen.RegistrarMovimiento.route,
             arguments = listOf(
                 navArgument("productId") { type = NavType.StringType },
                 navArgument("tipo") { type = NavType.StringType; defaultValue = "" }

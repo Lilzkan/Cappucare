@@ -26,7 +26,7 @@ import java.util.*
 fun PantallaMovimientos(
     viewModel: CappucareViewModel
 ) {
-    val movements by viewModel.allMovimientos.collectAsState()
+    val todosLosMovimientos by viewModel.todosLosMovimientos.collectAsState()
 
     Column(
         modifier = Modifier
@@ -46,7 +46,7 @@ fun PantallaMovimientos(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (movements.isEmpty()) {
+        if (todosLosMovimientos.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -63,7 +63,7 @@ fun PantallaMovimientos(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(movements, key = { it.id }) { movement ->
+                items(todosLosMovimientos, key = { it.id }) { movement ->
                     AnimatedVisibility(
                         visible = true,
                         enter = fadeIn() + expandVertically(),

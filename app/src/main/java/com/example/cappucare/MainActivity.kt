@@ -20,7 +20,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.cappucare.navigation.NavGraph
-import com.example.cappucare.navigation.bottomNavScreens
+import com.example.cappucare.navigation.pantallasNavegacionInferior
 import com.example.cappucare.ui.theme.CappucareTheme
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
@@ -44,7 +44,7 @@ fun MainAppScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val isBottomBarVisible = bottomNavScreens.any { it.route == currentRoute }
+    val isBottomBarVisible = pantallasNavegacionInferior.any { it.route == currentRoute }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -73,7 +73,7 @@ fun MainAppScreen() {
                     containerColor = MaterialTheme.colorScheme.surface,
                     tonalElevation = 8.dp
                 ) {
-                    bottomNavScreens.forEach { screen ->
+                    pantallasNavegacionInferior.forEach { screen ->
                         val isSelected = currentRoute == screen.route
                         NavigationBarItem(
                             selected = isSelected,
