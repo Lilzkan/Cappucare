@@ -1,5 +1,8 @@
 package com.example.cappucare.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -14,39 +17,31 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.cappucare.data.mock.MockData
 import com.example.cappucare.data.model.Categoria
 import com.example.cappucare.data.model.Producto
-import com.example.cappucare.ui.theme.CappucareTheme
+import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PantallaCatalogo(
+    viewModel: CappucareViewModel,
     onProductClick: (String) -> Unit = {},
     onAddProductClick: () -> Unit = {}
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var selectedCategory by remember { mutableStateOf<Categoria?>(null) }
-
-    val filteredProducts = remember(searchQuery, selectedCategory) {
-        MockData.sampleProducts.filter { product ->
-            val matchesQuery = product.nombre.contains(searchQuery, ignoreCase = true) ||
-                    product.id.contains(searchQuery, ignoreCase = true) ||
-                    product.ubicacion.contains(searchQuery, ignoreCase = true)
-            val matchesCategory = selectedCategory == null || product.categoria == selectedCategory
-            matchesQuery && matchesCategory
-        }
-    }
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val selectedCategory by viewModel.selectedCategory.collectAsState()
+    val filteredProducts by viewModel.filteredProductos.collectAsState()
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddProductClick,
-                containerColor = MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Nuevo Producto")
             }
@@ -59,15 +54,15 @@ fun PantallaCatalogo(
                 .padding(horizontal = 16.dp)
         ) {
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = { viewModel.searchQuery.value = it },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = { Text("Buscar por nombre, SKU o ubicación...") },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(16.dp)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -79,15 +74,19 @@ fun PantallaCatalogo(
                 item {
                     FilterChip(
                         selected = selectedCategory == null,
-                        onClick = { selectedCategory = null },
-                        label = { Text("Todas") }
+                        onClick = { viewModel.selectedCategory.value = null },
+                        label = { Text("Todas") },
+                        shape = RoundedCornerShape(20.dp)
                     )
                 }
-                items(Categoria.values()) { category ->
+                items(Categoria.entries.toTypedArray()) { category ->
                     FilterChip(
                         selected = selectedCategory == category,
-                        onClick = { selectedCategory = if (selectedCategory == category) null else category },
-                        label = { Text(category.displayName) }
+                        onClick = {
+                            viewModel.selectedCategory.value = if (selectedCategory == category) null else category
+                        },
+                        label = { Text(category.displayName) },
+                        shape = RoundedCornerShape(20.dp)
                     )
                 }
             }
@@ -97,17 +96,39 @@ fun PantallaCatalogo(
             Text(
                 text = "${filteredProducts.size} insumos encontrados",
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(bottom = 80.dp)
-            ) {
-                items(filteredProducts) { product ->
-                    TarjetaProducto(product = product, onClick = { onProductClick(product.id) })
+            if (filteredProducts.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No se encontraron insumos que coincidan.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    contentPadding = PaddingValues(bottom = 80.dp)
+                ) {
+                    items(filteredProducts, key = { it.id }) { product ->
+                        AnimatedVisibility(
+                            visible = true,
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
+                            TarjetaProducto(product = product, onClick = { onProductClick(product.id) })
+                        }
+                    }
                 }
             }
         }
@@ -119,10 +140,44 @@ fun TarjetaProducto(
     product: Producto,
     onClick: () -> Unit
 ) {
+    val maxStockRef = (product.stockMinimo * 2).coerceAtLeast(1)
+    val targetStockProgress = (product.cantidadDisponible.toFloat() / maxStockRef.toFloat()).coerceIn(0f, 1f)
+
+    var animatedProgressTarget by remember { mutableFloatStateOf(0f) }
+
+    LaunchedEffect(targetStockProgress) {
+        animatedProgressTarget = targetStockProgress
+    }
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = animatedProgressTarget,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioLowBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "StockProgressAnimation"
+    )
+
+    val infiniteTransition = rememberInfiniteTransition(label = "BadgePulseTransition")
+    val pulseScale by infiniteTransition.animateFloat(
+        initialValue = 1.0f,
+        targetValue = 1.08f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 850, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "BadgePulseScale"
+    )
+
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(
+            1.dp,
+            if (product.isStockBajo) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (product.isStockBajo)
                 MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f)
@@ -142,7 +197,7 @@ fun TarjetaProducto(
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(8.dp)
                 ) {
                     Text(
                         text = product.id,
@@ -153,10 +208,14 @@ fun TarjetaProducto(
                     )
                 }
 
-                if (product.isStockBajo) {
+                AnimatedVisibility(visible = product.isStockBajo) {
                     Surface(
                         color = MaterialTheme.colorScheme.error,
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.graphicsLayer {
+                            scaleX = pulseScale
+                            scaleY = pulseScale
+                        }
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -180,12 +239,12 @@ fun TarjetaProducto(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             Text(
                 text = product.nombre,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.Bold
             )
 
             Text(
@@ -197,7 +256,18 @@ fun TarjetaProducto(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Divider()
+            LinearProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp),
+                color = if (product.isStockBajo) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                trackColor = if (product.isStockBajo) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            HorizontalDivider()
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -234,13 +304,5 @@ fun TarjetaProducto(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PantallaCatalogoPreview() {
-    CappucareTheme {
-        PantallaCatalogo()
     }
 }
