@@ -38,3 +38,19 @@ El objetivo de la app es solucionar la falta de visibilidad del inventario en ti
 - Arquitectura: MVVM (ViewModel + StateFlow + Repository)
 - Navegación: Navigation Compose con transiciones animadas
 - Entorno: Android Studio
+
+---
+
+## Presentación Rápida
+
+### 1. El Problema y la Solución
+- Problema: Cappucare enfrentaba falta de visibilidad del inventario en tiempo real, desajustes entre cantidades registradas y reales, y quiebres de stock no detectados a tiempo.
+- Solución: Una aplicación móvil nativa en Android desarrollada en Kotlin y Jetpack Compose con almacenamiento local en SQLite que permite registrar recepciones, ventas y alertas automáticas de reposición.
+
+### 2. Flujo de Demostración
+- Inicio y Catálogo: Mostrar la búsqueda por nombre o SKU, el filtrado por categorías médicas y las barras de progreso que indican la salud del stock en tiempo real.
+
+- Detalle de Producto: Seleccionar un insumo (ejemplo: Gasa Esterilizada o Termómetro) para mostrar la ficha técnica completa y el pulso visual en la insignia de stock crítico.
+- Registro de Movimiento: Utilizar el selector para cambiar entre Recepción (+) y Venta (-), seleccionar un atajo rápido de motivo y confirmar el registro.
+- Validaciones en Tiempo Real: Intentar registrar una venta con cantidad superior al stock disponible para mostrar la validación visual instantánea.
+- Doble Confirmación de Seguridad: Demostrar el proceso de eliminación en dos pasos exigiendo escribir la palabra ELIMINAR en mayúsculas.
