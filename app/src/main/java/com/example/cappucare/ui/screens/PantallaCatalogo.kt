@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -16,13 +17,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cappucare.data.model.Categoria
 import com.example.cappucare.data.model.Producto
+import com.example.cappucare.ui.theme.AlertTerracotta
+import com.example.cappucare.ui.theme.SafeGreen
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +43,7 @@ fun PantallaCatalogo(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddProductClick,
+                shape = RoundedCornerShape(20.dp),
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
@@ -62,7 +66,7 @@ fun PantallaCatalogo(
                 placeholder = { Text("Buscar por nombre, SKU o ubicación...") },
                 leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
                 singleLine = true,
-                shape = RoundedCornerShape(16.dp)
+                shape = RoundedCornerShape(28.dp)
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -76,7 +80,14 @@ fun PantallaCatalogo(
                         selected = categoriaSeleccionada == null,
                         onClick = { viewModel.categoriaSeleccionada.value = null },
                         label = { Text("Todas") },
-                        shape = RoundedCornerShape(20.dp)
+                        shape = CircleShape,
+                        border = null,
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     )
                 }
                 items(Categoria.entries.toTypedArray()) { category ->
@@ -86,7 +97,14 @@ fun PantallaCatalogo(
                             viewModel.categoriaSeleccionada.value = if (categoriaSeleccionada == category) null else category
                         },
                         label = { Text(category.displayName) },
-                        shape = RoundedCornerShape(20.dp)
+                        shape = CircleShape,
+                        border = null,
+                        colors = FilterChipDefaults.filterChipColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            selectedContainerColor = MaterialTheme.colorScheme.primary,
+                            labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimary
+                        )
                     )
                 }
             }
@@ -169,18 +187,14 @@ fun TarjetaProducto(
         label = "BadgePulseScale"
     )
 
-    Card(
+    OutlinedCard(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(
-            1.dp,
-            if (product.isStockBajo) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        colors = CardDefaults.cardColors(
+        shape = RoundedCornerShape(24.dp),
+        border = BorderStroke(1.2.dp, MaterialTheme.colorScheme.outline),
+        colors = CardDefaults.outlinedCardColors(
             containerColor = if (product.isStockBajo)
-                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.25f)
+                MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f)
             else
                 MaterialTheme.colorScheme.surface
         )
@@ -197,11 +211,11 @@ fun TarjetaProducto(
             ) {
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer,
-                    shape = RoundedCornerShape(8.dp)
+                    shape = CircleShape
                 ) {
                     Text(
                         text = product.id,
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -210,29 +224,29 @@ fun TarjetaProducto(
 
                 AnimatedVisibility(visible = product.isStockBajo) {
                     Surface(
-                        color = MaterialTheme.colorScheme.error,
-                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = CircleShape,
                         modifier = Modifier.graphicsLayer {
                             scaleX = pulseScale
                             scaleY = pulseScale
                         }
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Warning,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = AlertTerracotta,
                                 modifier = Modifier.size(14.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "STOCK BAJO",
-                                color = Color.White,
+                                text = "URGENTE",
+                                color = AlertTerracotta,
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.ExtraBold
                             )
                         }
                     }
@@ -244,7 +258,8 @@ fun TarjetaProducto(
             Text(
                 text = product.nombre,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
@@ -260,14 +275,15 @@ fun TarjetaProducto(
                 progress = { animatedProgress },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(6.dp),
-                color = if (product.isStockBajo) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                trackColor = if (product.isStockBajo) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+                    .height(8.dp)
+                    .clip(CircleShape),
+                color = if (product.isStockBajo) AlertTerracotta else SafeGreen,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            HorizontalDivider()
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -294,7 +310,7 @@ fun TarjetaProducto(
                         text = "${product.cantidadDisponible} ${product.unidadMedida}",
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = if (product.isStockBajo) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                        color = if (product.isStockBajo) AlertTerracotta else MaterialTheme.colorScheme.primary
                     )
                     Text(
                         text = "Mínimo: ${product.stockMinimo}",

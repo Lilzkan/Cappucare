@@ -7,26 +7,36 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 private val LightColorScheme = lightColorScheme(
-    primary = TealPrimary,
-    onPrimary = TealOnPrimary,
-    primaryContainer = TealContainer,
-    onPrimaryContainer = TealOnContainer,
-    secondary = BlueSecondary,
-    onSecondary = BlueOnSecondary,
-    secondaryContainer = BlueSecondaryContainer,
-    onSecondaryContainer = BlueOnSecondaryContainer,
-    error = RedStockError,
-    errorContainer = RedErrorContainer,
-    onErrorContainer = RedOnErrorContainer,
-    surface = SurfaceLight,
-    surfaceVariant = SurfaceVariantLight
+    primary = ForestPrimary,
+    onPrimary = ForestOnPrimary,
+    primaryContainer = ForestPrimaryContainer,
+    onPrimaryContainer = ForestOnPrimaryContainer,
+    secondary = SageSecondary,
+    onSecondary = SageOnSecondary,
+    secondaryContainer = ForestPrimaryContainer,
+    onSecondaryContainer = ForestOnPrimaryContainer,
+    error = AlertTerracotta,
+    errorContainer = AlertTerracottaContainer,
+    onErrorContainer = OnAlertTerracottaContainer,
+    background = NaturalBackground,
+    onBackground = TextDark,
+    surface = NaturalSurface,
+    onSurface = TextDark,
+    surfaceVariant = NaturalSurfaceVariant,
+    onSurfaceVariant = TextMedium,
+    outline = NaturalOutline,
+    outlineVariant = NaturalOutline
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = TealPrimaryDark,
-    primaryContainer = TealContainerDark,
-    error = RedStockError,
-    errorContainer = RedErrorContainer
+    primary = ForestPrimaryContainer,
+    primaryContainer = ForestPrimary,
+    error = AlertTerracotta,
+    errorContainer = AlertTerracottaContainer,
+    background = TextDark,
+    onBackground = NaturalBackground,
+    surface = TextDark,
+    onSurface = NaturalSurface
 )
 
 @Composable
