@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cappucare.data.model.Categoria
 import com.example.cappucare.data.model.Producto
+import com.example.cappucare.ui.components.TarjetaClimaDia
 import com.example.cappucare.ui.theme.AlertTerracotta
 import com.example.cappucare.ui.theme.SafeGreen
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
@@ -38,6 +39,7 @@ fun PantallaCatalogo(
     val consultaBusqueda by viewModel.consultaBusqueda.collectAsState()
     val categoriaSeleccionada by viewModel.categoriaSeleccionada.collectAsState()
     val productosFiltrados by viewModel.productosFiltrados.collectAsState()
+    val infoClimaDia by viewModel.infoClimaDia.collectAsState()
 
     Scaffold(
         floatingActionButton = {
@@ -57,6 +59,10 @@ fun PantallaCatalogo(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
         ) {
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TarjetaClimaDia(info = infoClimaDia)
+
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
