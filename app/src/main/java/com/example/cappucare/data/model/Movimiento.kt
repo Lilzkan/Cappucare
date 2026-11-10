@@ -11,5 +11,6 @@ data class Movimiento(
     val cantidad: Int,
     val motivo: String,
     val fechaHora: Long = System.currentTimeMillis(),
-    val usuarioResponsable: String
+    val usuarioResponsable: String,
+    val sincronizado: Boolean = true
 )

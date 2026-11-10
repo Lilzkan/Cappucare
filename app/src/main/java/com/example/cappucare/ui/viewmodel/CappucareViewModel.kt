@@ -9,6 +9,7 @@ import com.example.cappucare.data.model.Movimiento
 import com.example.cappucare.data.model.Producto
 import com.example.cappucare.data.model.TipoMovimiento
 import com.example.cappucare.data.repository.CappucareRepository
+import com.example.cappucare.ui.utils.InfoClimaDia
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
@@ -24,6 +25,14 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
     val categoriaSeleccionada = MutableStateFlow<Categoria?>(null)
 
     val productosFiltrados: StateFlow<List<Producto>>
+
+    private val _estadoPruebaApi = MutableStateFlow("Sin probar")
+    val estadoPruebaApi: StateFlow<String> = _estadoPruebaApi.asStateFlow()
+
+    val cantidadPendientes = MutableStateFlow(0)
+    val estadoSincronizacion = MutableStateFlow("Listo")
+
+    val infoClimaDia = MutableStateFlow<InfoClimaDia?>(null)
 
     init {
         val database = AppDatabase.getDatabase(application)
@@ -61,6 +70,16 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
             started = SharingStarted.WhileSubscribed(5000),
             initialValue = emptyList()
         )
+
+        actualizarCantidadPendientes()
+        cargarClimaActual()
+        sincronizarConBackend()
+    }
+
+    fun cargarClimaActual() {
+        viewModelScope.launch {
+            infoClimaDia.value = repository.obtenerClimaYFecha()
+        }
     }
 
     suspend fun obtenerProductoPorId(id: String): Producto? {
@@ -122,6 +141,7 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
             )
 
             val exito = repository.registrarMovimiento(movimiento)
+            actualizarCantidadPendientes()
             if (exito) {
                 onSuccess()
             } else {
@@ -130,10 +150,44 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    fun actualizarCantidadPendientes() {
+        viewModelScope.launch {
+            cantidadPendientes.value = repository.obtenerCantidadPendientes()
+        }
+    }
+
+    fun sincronizarConBackend() {
+        viewModelScope.launch {
+            estadoSincronizacion.value = "Sincronizando..."
+            val subidos = repository.sincronizarMovimientosPendientes()
+            val resDescarga = repository.descargarProductosDeApi()
+
+            resDescarga.onSuccess { total ->
+                estadoSincronizacion.value = "Éxito ($subidos subidos, $total descargados)"
+            }.onFailure { err ->
+                estadoSincronizacion.value = "Sin conexión: ${err.localizedMessage}"
+            }
+            actualizarCantidadPendientes()
+            cargarClimaActual()
+        }
+    }
+
     fun eliminarProducto(producto: Producto, onSuccess: () -> Unit) {
         viewModelScope.launch {
             repository.eliminarProducto(producto)
             onSuccess()
+        }
+    }
+
+    fun ejecutarPruebaRetrofit(id: Int = 1) {
+        viewModelScope.launch {
+            _estadoPruebaApi.value = "Cargando..."
+            val resultado = repository.probandoRetrofit(id)
+            resultado.onSuccess { dto ->
+                _estadoPruebaApi.value = "Éxito (ID ${dto.id}): ${dto.titulo}"
+            }.onFailure { error ->
+                _estadoPruebaApi.value = "Error: ${error.localizedMessage}"
+            }
         }
     }
 }

@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@Database(entities = [Producto::class, Movimiento::class], version = 1, exportSchema = false)
+@Database(entities = [Producto::class, Movimiento::class], version = 3, exportSchema = false)
 @TypeConverters(ConvertidoresRoom::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -31,6 +31,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "cappucare_database"
                 )
+                    .fallbackToDestructiveMigration()
                     .addCallback(AppDatabaseCallback(context))
                     .build()
                 INSTANCE = instance

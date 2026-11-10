@@ -13,7 +13,8 @@ data class Producto(
     val unidadMedida: String,
     val stockMinimo: Int,
     val ubicacion: String,
-    val estado: String = "Disponible"
+    val estado: String = "Disponible",
+    val version: Long = 1L
 ) {
     val isStockBajo: Boolean
         get() = cantidadDisponible <= stockMinimo
