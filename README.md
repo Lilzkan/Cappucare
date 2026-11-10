@@ -1,4 +1,4 @@
-# Cappucare - Control e Inventario de Insumos Médicos
+# Cappucare - Control e Inteligente de Insumos Médicos
 
 Aplicación móvil para Android desarrollada con Kotlin y Jetpack Compose, enfocada en la gestión de existencias, control de stock y seguimiento de movimientos para la empresa Cappucare.
 
@@ -11,46 +11,44 @@ El objetivo de la app es solucionar la falta de visibilidad del inventario en ti
 
 ---
 
-## Estado del Desarrollo
+## Estado del Desarrollo y Nuevas Funcionalidades
 
 ### Desarrollado hasta el momento
-- [x] Modelos de Datos: Definición de entidades de productos médicos, categorías y historial de movimientos.
-- [x] Catálogo de Insumos: Pantalla con búsqueda integrada por nombre/SKU/ubicación, barra de nivel de stock y filtros por categoría.
-- [x] Alertas de Stock Bajo: Destacado visual con pulso en tarjetas para productos en nivel crítico.
-- [x] Historial de Movimientos: Registro sincronizado que distingue entre entradas (recepción) y salidas (ventas/mermas).
-- [x] Almacenamiento Local (SQLite via Room): Persistencia de datos local completa con Room Database, DAOs y Repositorio.
-- [x] Gestión de Estado (ViewModel): Arquitectura MVVM con StateFlow para reactividad en tiempo real.
-- [x] Formularios Validados: Validación visual en tiempo real en creación, edición y registro de movimientos.
-- [x] Confirmación de Seguridad: Doble verificación exigiendo confirmación escrita en mayúsculas para eliminación de insumos.
-- [x] Recursos Nativos del Dispositivo: Integración de Motor de Vibración Háptica (`VibratorManager`) y Notificaciones Locales del Sistema (`NotificationManager`).
-- [x] Componentes Animados e Interacción: Selector elástico deslizante `SelectorSquishTipoMovimiento`, diálogo de éxito rebotando `DialogoExitoAnimado` y transiciones de zoom en la navegación.
-
-### Próximas funcionalidades
-- [ ] Lector QR / Código de Barras: Búsqueda rápida mediante cámara.
-- [ ] Exportación de Reportes: Generación de reportes PDF/Excel de inventario.
+- [x] **Modelos de Datos y Room Database:** Persistencia local robusta con SQLite vía Room, DAOs y Repositorio.
+- [x] **Catálogo de Insumos y Filtros:** Búsqueda integrada por nombre/SKU/ubicación, barras de nivel de stock y filtros por categoría médica.
+- [x] **API Externa de Clima y Fecha (Open-Meteo):** Integración mediante Retrofit de un servicio REST externo para mostrar la fecha actual en español y el clima meteorológico en tiempo real (`TarjetaClimaDia`).
+- [x] **Sincronización API & Offline-First (Retrofit + Spring Boot):** Conectividad bidireccional con microservicios en Spring Boot con soporte para cola de movimientos pendientes en modo sin red.
+- [x] **Control Estricto de Concurrencia:**
+  - *Timestamping Inmutable:* Sello UTC exacto por transacción ordenado cronológicamente (`ORDER BY fechaHora ASC`).
+  - *Cola FIFO con Mutex:* Envío de solicitudes de red estrictamente secuencial para evitar condiciones de carrera.
+  - *Operaciones Atómicas:* Actualización de inventario mediante deltas relativas para prevenir quiebres y valores negativos.
+  - *Optimistic Locking:* Control de versiones (`version: Long`) en la entidad Producto para detectar colisiones simultáneas.
+- [x] **Suite de Pruebas Unitarias (JUnit 5 + Kotest + MockK + Coroutines-Test):** Pruebas unitarias robustas que cubren la lógica de negocio en repositorios y viewmodels.
+- [x] **Alertas de Stock Bajo y Notificaciones Nativas:** Destacado visual con pulso en tarjetas y notificaciones push locales en la barra de estado.
+- [x] **Gestión de Estado MVVM y Reactividad:** Arquitectura reactiva en tiempo real con StateFlow y corrutinas en hilos secundarios (`Dispatchers.IO`).
+- [x] **Formularios Validados y Doble Confirmación:** Validaciones en tiempo real y seguridad estricta para eliminación de insumos.
+- [x] **Componentes Animados y Recursos Nativos:** Selector deslizante `SelectorSquishTipoMovimiento`, diálogo de éxito `DialogoExitoAnimado`, transiciones de zoom y vibración háptica.
 
 ---
 
 ## Tecnologías Utilizadas
-- Lenguaje: Kotlin
-- Diseño de Interfaz: Jetpack Compose + Material 3
-- Persistencia Local: Room Database (SQLite)
-- Arquitectura: MVVM (ViewModel + StateFlow + Repository)
-- Navegación: Navigation Compose con transiciones animadas
-- Entorno: Android Studio
+- **Lenguaje:** Kotlin
+- **Diseño de Interfaz:** Jetpack Compose + Material 3 (Tema Verde Bosque & Eco)
+- **Persistencia Local:** Room Database (SQLite)
+- **Capa de Red:** Retrofit + Gson + OkHttp
+- **Arquitectura:** MVVM (ViewModel + StateFlow + Repository + Offline-First)
+- **Pruebas Unitarias:** JUnit 5 (Jupiter), Kotest, MockK, kotlinx-coroutines-test
+- **Entorno:** Android Studio
 
 ---
 
-## Presentación Rápida
+## Funciones Clave y Arquitectura Actual
 
-### 1. El Problema y la Solución
-- Problema: Cappucare enfrentaba falta de visibilidad del inventario en tiempo real, desajustes entre cantidades registradas y reales, y quiebres de stock no detectados a tiempo.
-- Solución: Una aplicación móvil nativa en Android desarrollada en Kotlin y Jetpack Compose con almacenamiento local en SQLite que permite registrar recepciones, ventas y alertas automáticas de reposición.
+### 1. Sincronización e Integración con Microservicios
+La app implementa un diseño *Offline-First*. Si el usuario no tiene conexión a internet con el microservicio Spring Boot, los movimientos se almacenan de forma segura en Room. Al recuperar la red, el motor de sincronización procesa los registros pendientes de manera ordenada y segura.
 
-### 2. Flujo de Demostración
-- Inicio y Catálogo: Mostrar la búsqueda por nombre o SKU, el filtrado por categorías médicas y las barras de progreso que indican la salud del stock en tiempo real.
+### 2. Control Avanzado de Concurrencia
+Para garantizar que múltiples accesos simultáneos no corrompan el inventario, el sistema emplea bloqueo optimista por versiones (`version`), marcas de tiempo inmutables y una cola de envío secuencial `FIFO` mediante `Mutex`, garantizando la integridad de los datos en entornos clínicos exigentes.
 
-- Detalle de Producto: Seleccionar un insumo (ejemplo: Gasa Esterilizada o Termómetro) para mostrar la ficha técnica completa y el pulso visual en la insignia de stock crítico.
-- Registro de Movimiento: Utilizar el selector para cambiar entre Recepción (+) y Venta (-), seleccionar un atajo rápido de motivo y confirmar el registro.
-- Validaciones en Tiempo Real: Intentar registrar una venta con cantidad superior al stock disponible para mostrar la validación visual instantánea.
-- Doble Confirmación de Seguridad: Demostrar el proceso de eliminación en dos pasos exigiendo escribir la palabra ELIMINAR en mayúsculas.
+### 3. API Externa Meteorológica
+Se conecta de manera transparente a la API pública de Open-Meteo para proveer información de la fecha y el clima actual en el encabezado principal, enriqueciendo la experiencia visual de la jornada clínica.
