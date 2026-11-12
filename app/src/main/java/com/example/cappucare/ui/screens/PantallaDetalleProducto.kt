@@ -41,6 +41,7 @@ fun PantallaDetalleProducto(
     var selectedTipoOperation by remember { mutableStateOf(TipoMovimiento.INGRESO) }
 
     val todosLosProductos by viewModel.todosLosProductos.collectAsState()
+    val esAdmin by viewModel.esAdmin.collectAsState()
     val movimientosFlow = remember(productId) { viewModel.obtenerMovimientosPorProducto(productId) }
     val productMovements by movimientosFlow.collectAsState(initial = emptyList())
 
@@ -142,11 +143,13 @@ fun PantallaDetalleProducto(
                 },
                 actions = {
                     product?.let { p ->
-                        IconButton(onClick = { onEditClick(p.id) }) {
-                            Icon(Icons.Filled.Edit, contentDescription = "Editar")
-                        }
-                        IconButton(onClick = { showFirstDeleteDialog = true }) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                        if (esAdmin) {
+                            IconButton(onClick = { onEditClick(p.id) }) {
+                                Icon(Icons.Filled.Edit, contentDescription = "Editar")
+                            }
+                            IconButton(onClick = { showFirstDeleteDialog = true }) {
+                                Icon(Icons.Filled.Delete, contentDescription = "Eliminar", tint = MaterialTheme.colorScheme.error)
+                            }
                         }
                     }
                 }

@@ -3,6 +3,8 @@ package com.example.cappucare.navigation
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -18,13 +20,27 @@ fun NavGraph(
     viewModel: CappucareViewModel,
     modifier: Modifier = Modifier
 ) {
+    val usuarioActual by viewModel.usuarioActual.collectAsState()
+    val rutaInicio = if (usuarioActual == null) Screen.Login.route else Screen.Catalogo.route
+
     NavHost(
         navController = navController,
-        startDestination = Screen.Catalogo.route,
+        startDestination = rutaInicio,
         modifier = modifier,
         enterTransition = { fadeIn(animationSpec = tween(300)) },
         exitTransition = { fadeOut(animationSpec = tween(300)) }
     ) {
+        composable(Screen.Login.route) {
+            PantallaLogin(
+                viewModel = viewModel,
+                onLoginSuccess = {
+                    navController.navigate(Screen.Catalogo.route) {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Screen.Catalogo.route) {
             PantallaCatalogo(
                 viewModel = viewModel,

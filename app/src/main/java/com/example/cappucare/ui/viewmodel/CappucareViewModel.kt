@@ -4,10 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cappucare.data.local.AppDatabase
-import com.example.cappucare.data.model.Categoria
-import com.example.cappucare.data.model.Movimiento
-import com.example.cappucare.data.model.Producto
-import com.example.cappucare.data.model.TipoMovimiento
+import com.example.cappucare.data.local.SesionManager
+import com.example.cappucare.data.model.*
+import com.example.cappucare.data.remote.ClienteRetrofit
 import com.example.cappucare.data.repository.CappucareRepository
 import com.example.cappucare.ui.utils.InfoClimaDia
 import kotlinx.coroutines.flow.*
@@ -16,6 +15,14 @@ import kotlinx.coroutines.launch
 class CappucareViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: CappucareRepository
+    val sesionManager: SesionManager = SesionManager(application)
+
+    val usuarioActual = MutableStateFlow<Usuario?>(sesionManager.obtenerUsuarioActual())
+    val esAdmin: StateFlow<Boolean> = usuarioActual.map { it?.rol == RolUsuario.ADMIN }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = sesionManager.obtenerUsuarioActual()?.rol == RolUsuario.ADMIN
+    )
 
     val todosLosProductos: StateFlow<List<Producto>>
     val productosStockBajo: StateFlow<List<Producto>>
@@ -74,6 +81,50 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
         actualizarCantidadPendientes()
         cargarClimaActual()
         sincronizarConBackend()
+
+        ClienteRetrofit.tokenJwtSupplier = { sesionManager.obtenerTokenJwt() }
+    }
+
+    fun iniciarSesion(
+        username: String,
+        pass: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            val resRemote = repository.loginRemote(username, pass)
+            resRemote.onSuccess { resp ->
+                val rol = try {
+                    RolUsuario.valueOf(resp.rol.uppercase())
+                } catch (_: Exception) {
+                    RolUsuario.TRABAJADOR
+                }
+                val u = Usuario(
+                    username = resp.username,
+                    nombreCompleto = resp.nombreCompleto ?: resp.username,
+                    rol = rol,
+                    token = resp.token
+                )
+                sesionManager.guardarSesion(u)
+                usuarioActual.value = u
+                onSuccess()
+            }.onFailure {
+                val fallbackUser = sesionManager.validarLoginOffline(username, pass)
+                if (fallbackUser != null) {
+                    sesionManager.guardarSesion(fallbackUser)
+                    usuarioActual.value = fallbackUser
+                    onSuccess()
+                } else {
+                    onError("Credenciales incorrectas. Revisa tu usuario y contraseña.")
+                }
+            }
+        }
+    }
+
+    fun cerrarSesion(onLogout: () -> Unit) {
+        sesionManager.cerrarSesion()
+        usuarioActual.value = null
+        onLogout()
     }
 
     fun cargarClimaActual() {

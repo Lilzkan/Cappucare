@@ -11,6 +11,7 @@ sealed class Screen(
     val title: String,
     val icon: ImageVector? = null
 ) {
+    object Login : Screen("login", "Iniciar Sesión")
     object Catalogo : Screen("catalog", "Catálogo", Icons.Filled.Inventory)
     object Historial : Screen("movements", "Historial", Icons.Filled.History)
     object Alertas : Screen("alerts", "Stock Bajo", Icons.Filled.Warning)

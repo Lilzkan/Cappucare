@@ -7,6 +7,8 @@ import com.example.cappucare.data.model.Producto
 import com.example.cappucare.data.model.TipoMovimiento
 import com.example.cappucare.data.remote.ClienteClimaRetrofit
 import com.example.cappucare.data.remote.ClienteRetrofit
+import com.example.cappucare.data.remote.LoginRequest
+import com.example.cappucare.data.remote.LoginResponse
 import com.example.cappucare.data.remote.PruebaApiDto
 import com.example.cappucare.ui.utils.ClimaHelper
 import com.example.cappucare.ui.utils.InfoClimaDia
@@ -107,6 +109,20 @@ class CappucareRepository(
         try {
             val respuesta = ClienteRetrofit.servicioApi.obtenerPruebaPorId(id)
             Result.success(respuesta)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun loginRemote(username: String, pass: String): Result<LoginResponse> = withContext(Dispatchers.IO) {
+        try {
+            val req = LoginRequest(username, pass)
+            val resp = ClienteRetrofit.servicioApi.loginRemote(req)
+            if (resp.isSuccessful && resp.body() != null) {
+                Result.success(resp.body()!!)
+            } else {
+                Result.failure(Exception("Credenciales inválidas"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

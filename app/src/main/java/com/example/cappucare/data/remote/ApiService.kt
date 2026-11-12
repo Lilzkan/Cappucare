@@ -17,4 +17,7 @@ interface ApiService {
 
     @POST("movimientos")
     suspend fun enviarMovimientoRemote(@Body movimiento: Movimiento): Response<Unit>
+
+    @POST("auth/login")
+    suspend fun loginRemote(@Body request: LoginRequest): Response<LoginResponse>
 }

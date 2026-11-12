@@ -40,16 +40,19 @@ fun PantallaCatalogo(
     val categoriaSeleccionada by viewModel.categoriaSeleccionada.collectAsState()
     val productosFiltrados by viewModel.productosFiltrados.collectAsState()
     val infoClimaDia by viewModel.infoClimaDia.collectAsState()
+    val esAdmin by viewModel.esAdmin.collectAsState()
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddProductClick,
-                shape = RoundedCornerShape(20.dp),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Nuevo Producto")
+            if (esAdmin) {
+                FloatingActionButton(
+                    onClick = onAddProductClick,
+                    shape = RoundedCornerShape(20.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Nuevo Producto")
+                }
             }
         }
     ) { padding ->

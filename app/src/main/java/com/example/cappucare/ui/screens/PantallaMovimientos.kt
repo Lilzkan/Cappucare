@@ -27,6 +27,23 @@ fun PantallaMovimientos(
     viewModel: CappucareViewModel
 ) {
     val todosLosMovimientos by viewModel.todosLosMovimientos.collectAsState()
+    val usuarioActual by viewModel.usuarioActual.collectAsState()
+    val esAdmin by viewModel.esAdmin.collectAsState()
+
+    val movimientosVisibles = remember(todosLosMovimientos, usuarioActual, esAdmin) {
+        if (esAdmin) {
+            todosLosMovimientos
+        } else {
+            val user = usuarioActual
+            if (user == null) emptyList()
+            else {
+                todosLosMovimientos.filter { m ->
+                    m.usuarioResponsable.contains(user.username, ignoreCase = true) ||
+                    m.usuarioResponsable.contains(user.nombreCompleto, ignoreCase = true)
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -34,19 +51,19 @@ fun PantallaMovimientos(
             .padding(16.dp)
     ) {
         Text(
-            text = "Historial de Movimientos",
+            text = if (esAdmin) "Historial Completo de Movimientos" else "Mi Historial de Movimientos",
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold
         )
         Text(
-            text = "Registro de ingresos (recepción) y salidas (ventas/mermas)",
+            text = if (esAdmin) "Registro global de ingresos y salidas" else "Movimientos registrados bajo tu perfil (${usuarioActual?.nombreCompleto ?: ""})",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (todosLosMovimientos.isEmpty()) {
+        if (movimientosVisibles.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -54,7 +71,7 @@ fun PantallaMovimientos(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Aún no se han registrado movimientos.",
+                    text = "Aún no has registrado movimientos.",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -63,7 +80,7 @@ fun PantallaMovimientos(
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(todosLosMovimientos, key = { it.id }) { movement ->
+                items(movimientosVisibles, key = { it.id }) { movement ->
                     AnimatedVisibility(
                         visible = true,
                         enter = fadeIn() + expandVertically(),

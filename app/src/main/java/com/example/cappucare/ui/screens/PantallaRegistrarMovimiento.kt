@@ -35,6 +35,8 @@ fun PantallaRegistrarMovimiento(
     onSuccess: () -> Unit
 ) {
     val context = LocalContext.current
+    val usuarioActual by viewModel.usuarioActual.collectAsState()
+
     var product by remember { mutableStateOf<Producto?>(null) }
     var tipo by remember {
         mutableStateOf(
@@ -44,7 +46,9 @@ fun PantallaRegistrarMovimiento(
 
     var cantidadText by remember { mutableStateOf("") }
     var motivo by remember { mutableStateOf("") }
-    var usuarioResponsable by remember { mutableStateOf("") }
+    var usuarioResponsable by remember(usuarioActual) {
+        mutableStateOf(usuarioActual?.nombreCompleto ?: "")
+    }
 
     var cantidadError by remember { mutableStateOf<String?>(null) }
     var motivoError by remember { mutableStateOf<String?>(null) }
