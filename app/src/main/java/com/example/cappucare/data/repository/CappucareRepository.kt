@@ -131,10 +131,11 @@ class CappucareRepository(
     suspend fun obtenerClimaYFecha(): InfoClimaDia = withContext(Dispatchers.IO) {
         val (nombreDia, numeroDia, mesAno) = ClimaHelper.obtenerFechaActualFormateada()
         val (nombreMes, ano) = mesAno
+        val momento = ClimaHelper.obtenerMomentoDelDia()
 
         try {
             val resp = ClienteClimaRetrofit.servicioClimaApi.obtenerClima()
-            val (descripcion, icono) = ClimaHelper.traducirCodigoClimaWmo(resp.climaActual.codigoClima)
+            val (descripcion, icono) = ClimaHelper.traducirCodigoClimaWmo(resp.climaActual.codigoClima, resp.climaActual.esDia)
             InfoClimaDia(
                 nombreDia = nombreDia,
                 numeroDia = numeroDia,
@@ -142,7 +143,8 @@ class CappucareRepository(
                 ano = ano,
                 temperatura = "${resp.climaActual.temperatura} °C",
                 descripcionClima = descripcion,
-                iconoClima = icono
+                iconoClima = icono,
+                momentoDia = momento
             )
         } catch (e: Exception) {
             InfoClimaDia(
@@ -152,7 +154,8 @@ class CappucareRepository(
                 ano = ano,
                 temperatura = "-- °C",
                 descripcionClima = "Sin conexión",
-                iconoClima = "🌤️"
+                iconoClima = "🌤️",
+                momentoDia = momento
             )
         }
     }

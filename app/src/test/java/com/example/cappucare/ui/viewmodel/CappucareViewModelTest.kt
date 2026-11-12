@@ -12,8 +12,8 @@ class CappucareViewModelTest {
     @Test
     @DisplayName("CASO POSITIVO: Formatos de fecha y clima helper producen traducciones correctas")
     fun `clima helper traduce codigos WMO correctamente`() {
-        val (descSoleado, iconoSoleado) = ClimaHelper.traducirCodigoClimaWmo(0)
-        descSoleado shouldBe "Despejado / Soleado"
+        val (descSoleado, iconoSoleado) = ClimaHelper.traducirCodigoClimaWmo(0, 1)
+        descSoleado shouldBe "Día Soleado"
         iconoSoleado shouldBe "☀️"
 
         val (nombreDia, numeroDia, mesAno) = ClimaHelper.obtenerFechaActualFormateada()
@@ -21,17 +21,17 @@ class CappucareViewModelTest {
         numeroDia.shouldNotBeNull()
         mesAno.first.shouldNotBeNull()
 
-        println("[TEST CON EXITO] El Helper de Clima tradujo el codigo WMO 0 a 'Despejado / Soleado' ☀️ y formatea la fecha correctamente.")
+        println("[TEST CON EXITO] El Helper de Clima tradujo el codigo WMO 0 a 'Día Soleado' ☀️ y formatea la fecha correctamente.")
     }
 
     @Test
     @DisplayName("CASO CONTROL DE BORDES: Código meteorológico WMO no mapeado usa fallback seguro")
     fun `clima helper maneja codigos WMO desconocidos con fallback`() {
-        val (descDesconocido, iconoDesconocido) = ClimaHelper.traducirCodigoClimaWmo(9999)
-        descDesconocido shouldBe "Tiempo Templado"
+        val (descDesconocido, iconoDesconocido) = ClimaHelper.traducirCodigoClimaWmo(9999, 1)
+        descDesconocido shouldBe "Día Templado"
         iconoDesconocido shouldBe "🌡️"
 
-        println("[CASO DE ERROR DETECTADO CORRECTAMENTE] Ante un codigo WMO inexistente (9999), el sistema aplico el fallback seguro 'Tiempo Templado' 🌡️.")
+        println("[CASO DE ERROR DETECTADO CORRECTAMENTE] Ante un codigo WMO inexistente (9999), el sistema aplico el fallback seguro.")
     }
 
     @Test

@@ -9,5 +9,6 @@ data class RespuestaClimaDto(
 data class ClimaActualDto(
     @SerializedName("temperature") val temperatura: Double,
     @SerializedName("weathercode") val codigoClima: Int,
+    @SerializedName("is_day") val esDia: Int? = 1,
     @SerializedName("time") val tiempoIso: String
 )

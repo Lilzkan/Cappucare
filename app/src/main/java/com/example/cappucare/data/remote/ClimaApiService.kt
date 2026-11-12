@@ -8,6 +8,7 @@ interface ClimaApiService {
     suspend fun obtenerClima(
         @Query("latitude") latitud: Double = -33.4489,
         @Query("longitude") longitud: Double = -70.6693,
-        @Query("current_weather") climaActual: Boolean = true
+        @Query("current_weather") climaActual: Boolean = true,
+        @Query("timezone") zonaHoraria: String = "auto"
     ): RespuestaClimaDto
 }

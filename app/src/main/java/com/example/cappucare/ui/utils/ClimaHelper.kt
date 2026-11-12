@@ -11,7 +11,8 @@ data class InfoClimaDia(
     val ano: String,
     val temperatura: String,
     val descripcionClima: String,
-    val iconoClima: String
+    val iconoClima: String,
+    val momentoDia: String
 )
 
 object ClimaHelper {
@@ -29,17 +30,27 @@ object ClimaHelper {
         return Triple(nombreDia, numeroDia, Pair(nombreMes, ano))
     }
 
-    fun traducirCodigoClimaWmo(codigo: Int): Pair<String, String> {
+    fun obtenerMomentoDelDia(): String {
+        val hora = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        return when (hora) {
+            in 6..11 -> "Mañana"
+            in 12..18 -> "Tarde"
+            else -> "Noche"
+        }
+    }
+
+    fun traducirCodigoClimaWmo(codigo: Int, esDia: Int?): Pair<String, String> {
+        val esDeNoche = esDia == 0
         return when (codigo) {
-            0 -> Pair("Despejado / Soleado", "☀️")
-            1, 2, 3 -> Pair("Parcialmente Nublado", "⛅")
+            0 -> if (esDeNoche) Pair("Noche Despejada", "🌙") else Pair("Día Soleado", "☀️")
+            1, 2, 3 -> if (esDeNoche) Pair("Noche Parcialmente Nublada", "🌙☁️") else Pair("Día Parcialmente Nublado", "⛅")
             45, 48 -> Pair("Niebla", "🌫️")
             51, 53, 55, 56, 57 -> Pair("Llovizna", "🌦️")
             61, 63, 65, 66, 67 -> Pair("Lluvia", "🌧️")
             71, 73, 75, 77 -> Pair("Nieve", "❄️")
             80, 81, 82 -> Pair("Chubascos", "🌧️")
             95, 96, 99 -> Pair("Tormenta Eléctrica", "⛈️")
-            else -> Pair("Tiempo Templado", "🌡️")
+            else -> if (esDeNoche) Pair("Noche Templada", "🌙") else Pair("Día Templado", "🌡️")
         }
     }
 }
