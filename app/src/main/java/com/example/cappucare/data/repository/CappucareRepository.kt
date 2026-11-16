@@ -9,7 +9,6 @@ import com.example.cappucare.data.remote.ClienteClimaRetrofit
 import com.example.cappucare.data.remote.ClienteRetrofit
 import com.example.cappucare.data.remote.LoginRequest
 import com.example.cappucare.data.remote.LoginResponse
-import com.example.cappucare.data.remote.PruebaApiDto
 import com.example.cappucare.ui.utils.ClimaHelper
 import com.example.cappucare.ui.utils.InfoClimaDia
 import kotlinx.coroutines.Dispatchers
@@ -61,7 +60,7 @@ class CappucareRepository(
         try {
             val response = ClienteRetrofit.servicioApi.enviarMovimientoRemote(movimiento)
             fueEnviado = response.isSuccessful
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             fueEnviado = false
         }
 
@@ -81,7 +80,7 @@ class CappucareRepository(
                         movimientoDao.marcarComoSincronizado(mov.id)
                         exitosos++
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Sigue estando offline
                 }
             }
@@ -104,16 +103,6 @@ class CappucareRepository(
     suspend fun obtenerCantidadPendientes(): Int = withContext(Dispatchers.IO) {
         movimientoDao.obtenerMovimientosNoSincronizados().size
     }
-
-    suspend fun probandoRetrofit(id: Int = 1): Result<PruebaApiDto> = withContext(Dispatchers.IO) {
-        try {
-            val respuesta = ClienteRetrofit.servicioApi.obtenerPruebaPorId(id)
-            Result.success(respuesta)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     suspend fun loginRemote(username: String, pass: String): Result<LoginResponse> = withContext(Dispatchers.IO) {
         try {
             val req = LoginRequest(username, pass)
@@ -146,7 +135,7 @@ class CappucareRepository(
                 iconoClima = icono,
                 momentoDia = momento
             )
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             InfoClimaDia(
                 nombreDia = nombreDia,
                 numeroDia = numeroDia,

@@ -33,9 +33,6 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
 
     val productosFiltrados: StateFlow<List<Producto>>
 
-    private val _estadoPruebaApi = MutableStateFlow("Sin probar")
-    val estadoPruebaApi: StateFlow<String> = _estadoPruebaApi.asStateFlow()
-
     val cantidadPendientes = MutableStateFlow(0)
     val estadoSincronizacion = MutableStateFlow("Listo")
 
@@ -227,18 +224,6 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             repository.eliminarProducto(producto)
             onSuccess()
-        }
-    }
-
-    fun ejecutarPruebaRetrofit(id: Int = 1) {
-        viewModelScope.launch {
-            _estadoPruebaApi.value = "Cargando..."
-            val resultado = repository.probandoRetrofit(id)
-            resultado.onSuccess { dto ->
-                _estadoPruebaApi.value = "Éxito (ID ${dto.id}): ${dto.titulo}"
-            }.onFailure { error ->
-                _estadoPruebaApi.value = "Error: ${error.localizedMessage}"
-            }
         }
     }
 }

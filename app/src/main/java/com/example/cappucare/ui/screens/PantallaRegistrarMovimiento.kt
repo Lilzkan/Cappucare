@@ -2,6 +2,8 @@ package com.example.cappucare.ui.screens
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.cappucare.data.model.Producto
 import com.example.cappucare.data.model.TipoMovimiento
 import com.example.cappucare.ui.components.DialogoExitoAnimado
@@ -184,21 +187,30 @@ fun PantallaRegistrarMovimiento(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.outline
                         )
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
                             val presets = if (currentTipo == TipoMovimiento.INGRESO) {
                                 listOf("Recepción Proveedor", "Devolución Cliente", "Ajuste Inventario (+)")
                             } else {
                                 listOf("Venta a Clínica", "Venta Particular", "Merma / Vencimiento (-)")
                             }
 
-                            presets.forEach { preset ->
-                                SuggestionChip(
+                            items(presets) { preset ->
+                                FilterChip(
+                                    selected = motivo == preset,
                                     onClick = {
                                         motivo = preset
                                         if (motivoError != null) motivoError = null
                                     },
-                                    label = { Text(preset, style = MaterialTheme.typography.labelSmall) },
-                                    shape = RoundedCornerShape(12.dp)
+                                    label = { Text(preset, fontSize = 12.sp, maxLines = 1) },
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
                                 )
                             }
                         }

@@ -17,15 +17,15 @@ fun TarjetaClimaDia(
     modifier: Modifier = Modifier
 ) {
     Card(
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         modifier = modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -33,20 +33,21 @@ fun TarjetaClimaDia(
                 if (info != null) {
                     Text(
                         text = "${info.nombreDia}, ${info.numeroDia} de ${info.nombreMes}",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        maxLines = 1
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = "Jornada Clínica Cappucare",
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelSmall,
+                        fontSize = 11.sp,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                     )
                 } else {
                     Text(
                         text = "Cargando información del día...",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
@@ -58,19 +59,20 @@ fun TarjetaClimaDia(
                 ) {
                     Text(
                         text = info.iconoClima,
-                        fontSize = 28.sp
+                        fontSize = 22.sp
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Column(horizontalAlignment = Alignment.End) {
                         Text(
                             text = info.temperatura,
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Text(
                             text = info.descripcionClima,
                             style = MaterialTheme.typography.labelSmall,
+                            fontSize = 10.sp,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                         )
                     }

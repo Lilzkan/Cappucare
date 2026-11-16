@@ -29,7 +29,7 @@ class CappucareRepositoryTest {
     }
 
     @Test
-    @DisplayName("CASO POSITIVO: Registrar ingreso incrementa el stock del producto y la versión optimista")
+    @DisplayName("POSITIVO: Registrar ingreso incrementa el stock del producto y la versión optimista")
     fun `registrar movimiento de ingreso actualiza stock y version`() = runTest {
         val productoInicial = Producto(
             id = "MED-101",
@@ -68,7 +68,7 @@ class CappucareRepositoryTest {
     }
 
     @Test
-    @DisplayName("CASO NEGATIVO: Intentar salida con stock insuficiente debe fallar y retornar false")
+    @DisplayName("NEGATIVO: Intentar salida con stock insuficiente debe fallar y retornar false")
     fun `intentar salida sin stock suficiente debe fallar`() = runTest {
         val productoInicial = Producto(
             id = "MED-103",
@@ -97,11 +97,11 @@ class CappucareRepositoryTest {
 
         resultado.shouldBeFalse()
         coVerify(exactly = 0) { productoDao.actualizarProducto(any()) }
-        println("[CASO DE ERROR DETECTADO CORRECTAMENTE] Se rechazo la salida de 20 unidades porque el stock disponible era solo 5.")
+        println("[CASO DE ERROR DETECTADO] Se rechazo la salida de 20 unidades porque el stock disponible era solo 5.")
     }
 
     @Test
-    @DisplayName("CASO NEGATIVO: Intentar registrar movimiento para producto inexistente retorna false")
+    @DisplayName("NEGATIVO: Intentar registrar movimiento para producto inexistente retorna false")
     fun `intentar movimiento para producto inexistente retorna false`() = runTest {
         val movimiento = Movimiento(
             productoId = "MED-999",
@@ -117,11 +117,11 @@ class CappucareRepositoryTest {
         val resultado = repository.registrarMovimiento(movimiento)
 
         resultado.shouldBeFalse()
-        println("[CASO DE ERROR DETECTADO CORRECTAMENTE] El sistema bloqueo el movimiento porque el insumo MED-999 no existe en la BD.")
+        println("[CASO DE ERROR DETECTADO] El sistema bloqueo el movimiento porque el insumo MED-999 no existe en la BD.")
     }
 
     @Test
-    @DisplayName("CASO POSITIVO: Sincronizar pendientes gestiona la cola en modo offline")
+    @DisplayName("POSITIVO: Sincronizar pendientes gestiona la cola en modo offline")
     fun `sincronizar pendientes marca como sincronizado`() = runTest {
         val movimientoPendiente = Movimiento(
             id = 10L,
@@ -139,6 +139,6 @@ class CappucareRepositoryTest {
         val totalSubidos = repository.sincronizarMovimientosPendientes()
 
         (totalSubidos >= 0).shouldBeTrue()
-        println("[TEST CON EXITO] La cola offline procesó el intento y sincronizó los registros pendientes.")
+        println("La cola offline procesó el intento y sincronizó los registros pendientes.")
     }
 }

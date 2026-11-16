@@ -6,12 +6,8 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
-import retrofit2.http.Path
 
 interface ApiService {
-    @GET("todos/{id}")
-    suspend fun obtenerPruebaPorId(@Path("id") id: Int): PruebaApiDto
-
     @GET("productos")
     suspend fun obtenerProductosRemote(): List<Producto>
 
