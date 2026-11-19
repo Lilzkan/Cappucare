@@ -30,7 +30,7 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = file("cappucare-release.jks")
+            storeFile = file("cappucare-release-key")
             storePassword = localProperties.getProperty("KEYSTORE_PASSWORD") ?: ""
             keyAlias = localProperties.getProperty("KEY_ALIAS") ?: ""
             keyPassword = localProperties.getProperty("KEY_PASSWORD") ?: ""
