@@ -26,6 +26,7 @@ import com.example.cappucare.data.model.TipoMovimiento
 import com.example.cappucare.ui.components.DialogoExitoAnimado
 import com.example.cappucare.ui.components.SelectorSquishTipoMovimiento
 import com.example.cappucare.ui.utils.NotificacionHelper
+import com.example.cappucare.ui.utils.ValidadoresHelper
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,35 +80,20 @@ fun PantallaRegistrarMovimiento(
     )
 
     fun validarFormulario(): Boolean {
-        var isValid = true
         val p = product ?: return false
+        val res = ValidadoresHelper.validarMovimiento(
+            cantidadText = cantidadText,
+            motivo = motivo,
+            usuarioResponsable = usuarioResponsable,
+            stockDisponible = p.cantidadDisponible,
+            esSalida = (tipo == TipoMovimiento.SALIDA)
+        )
 
-        val cantidadParsed = cantidadText.toIntOrNull()
-        if (cantidadParsed == null || cantidadParsed <= 0) {
-            cantidadError = "Ingresa una cantidad mayor a cero"
-            isValid = false
-        } else if (tipo == TipoMovimiento.SALIDA && cantidadParsed > p.cantidadDisponible) {
-            cantidadError = "Cantidad excede el stock disponible (${p.cantidadDisponible})"
-            isValid = false
-        } else {
-            cantidadError = null
-        }
+        cantidadError = res.errores["cantidad"]
+        motivoError = res.errores["motivo"]
+        usuarioError = res.errores["usuario"]
 
-        if (motivo.trim().length < 3) {
-            motivoError = "El motivo debe detallar la razón (mín. 3 caracteres)"
-            isValid = false
-        } else {
-            motivoError = null
-        }
-
-        if (usuarioResponsable.trim().isEmpty()) {
-            usuarioError = "Indica el usuario o perfil responsable"
-            isValid = false
-        } else {
-            usuarioError = null
-        }
-
-        return isValid
+        return res.esValido
     }
 
     Scaffold(

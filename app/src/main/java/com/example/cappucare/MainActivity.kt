@@ -1,9 +1,14 @@
 package com.example.cappucare
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.*
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,14 +18,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -29,6 +37,7 @@ import com.example.cappucare.navigation.NavGraph
 import com.example.cappucare.navigation.Screen
 import com.example.cappucare.navigation.pantallasNavegacionInferior
 import com.example.cappucare.ui.theme.CappucareTheme
+import com.example.cappucare.ui.utils.NotificacionHelper
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 class MainActivity : ComponentActivity() {
@@ -46,6 +55,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainAppScreen() {
+    val context = LocalContext.current
     val navController = rememberNavController()
     val viewModel: CappucareViewModel = viewModel()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -53,6 +63,24 @@ fun MainAppScreen() {
 
     val usuarioActual by viewModel.usuarioActual.collectAsState()
     val isBottomBarVisible = usuarioActual != null && pantallasNavegacionInferior.any { it.route == currentRoute }
+
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { _ -> }
+
+    LaunchedEffect(Unit) {
+        NotificacionHelper.crearCanalNotificaciones(context)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!hasPermission) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),

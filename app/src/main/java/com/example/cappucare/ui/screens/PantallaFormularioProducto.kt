@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.cappucare.data.model.Categoria
 import com.example.cappucare.ui.components.DialogoExitoAnimado
+import com.example.cappucare.ui.utils.ValidadoresHelper
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,46 +73,21 @@ fun PantallaFormularioProducto(
     )
 
     fun validarFormulario(): Boolean {
-        var isValid = true
+        val res = ValidadoresHelper.validarProducto(
+            id = id,
+            nombre = nombre,
+            cantidadText = cantidadDisponibleText,
+            stockMinimoText = stockMinimoText,
+            ubicacion = ubicacion
+        )
 
-        if (id.trim().isEmpty()) {
-            idError = "El código o SKU es obligatorio"
-            isValid = false
-        } else {
-            idError = null
-        }
+        idError = res.errores["id"]
+        nombreError = res.errores["nombre"]
+        cantidadError = res.errores["cantidad"]
+        stockMinimoError = res.errores["stockMinimo"]
+        ubicacionError = res.errores["ubicacion"]
 
-        if (nombre.trim().length < 3) {
-            nombreError = "El nombre debe tener al menos 3 caracteres"
-            isValid = false
-        } else {
-            nombreError = null
-        }
-
-        val cantidadParsed = cantidadDisponibleText.toIntOrNull()
-        if (cantidadParsed == null || cantidadParsed < 0) {
-            cantidadError = "Ingresa una cantidad válida (>= 0)"
-            isValid = false
-        } else {
-            cantidadError = null
-        }
-
-        val stockMinimoParsed = stockMinimoText.toIntOrNull()
-        if (stockMinimoParsed == null || stockMinimoParsed < 0) {
-            stockMinimoError = "Ingresa un stock mínimo válido (>= 0)"
-            isValid = false
-        } else {
-            stockMinimoError = null
-        }
-
-        if (ubicacion.trim().isEmpty()) {
-            ubicacionError = "La ubicación de almacenamiento es obligatoria"
-            isValid = false
-        } else {
-            ubicacionError = null
-        }
-
-        return isValid
+        return res.esValido
     }
 
     Scaffold(
