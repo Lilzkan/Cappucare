@@ -15,6 +15,9 @@ interface ProductoDao {
     @Query("SELECT * FROM productos WHERE cantidadDisponible <= stockMinimo ORDER BY cantidadDisponible ASC")
     fun obtenerProductosStockBajo(): Flow<List<Producto>>
 
+    @Query("SELECT * FROM productos WHERE cantidadDisponible <= stockMinimo ORDER BY cantidadDisponible ASC")
+    suspend fun obtenerProductosStockBajoDirecto(): List<Producto>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertarProducto(producto: Producto)
 
@@ -23,17 +26,4 @@ interface ProductoDao {
 
     @Delete
     suspend fun eliminarProducto(producto: Producto)
-
-    @Query("INSERT INTO productos (id, nombre, descripcion, categoria, cantidadDisponible, unidadMedida, stockMinimo, ubicacion, estado) VALUES (:id, :nombre, :descripcion, :categoria, :cantidadDisponible, :unidadMedida, :stockMinimo, :ubicacion, :estado)")
-    suspend fun insertarDirecto(
-        id: String,
-        nombre: String,
-        descripcion: String,
-        categoria: String,
-        cantidadDisponible: Int,
-        unidadMedida: String,
-        stockMinimo: Int,
-        ubicacion: String,
-        estado: String
-    )
 }

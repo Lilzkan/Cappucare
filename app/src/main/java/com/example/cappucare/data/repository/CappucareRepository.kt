@@ -1,5 +1,6 @@
 package com.example.cappucare.data.repository
 
+import android.content.Context
 import com.example.cappucare.data.local.MovimientoDao
 import com.example.cappucare.data.local.ProductoDao
 import com.example.cappucare.data.model.Movimiento
@@ -11,6 +12,7 @@ import com.example.cappucare.data.remote.LoginRequest
 import com.example.cappucare.data.remote.LoginResponse
 import com.example.cappucare.ui.utils.ClimaHelper
 import com.example.cappucare.ui.utils.InfoClimaDia
+import com.example.cappucare.ui.utils.NotificacionHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.sync.Mutex
@@ -42,31 +44,49 @@ class CappucareRepository(
         productoDao.eliminarProducto(producto)
     }
 
-    suspend fun registrarMovimiento(movimiento: Movimiento): Boolean = withContext(Dispatchers.IO) {
-        val producto = productoDao.obtenerProductoPorId(movimiento.productoId) ?: return@withContext false
+    suspend fun registrarMovimiento(movimiento: Movimiento): Result<Unit> = withContext(Dispatchers.IO) {
+        val producto = productoDao.obtenerProductoPorId(movimiento.productoId)
+            ?: return@withContext Result.failure(Exception("El insumo no fue encontrado en el inventario."))
 
-        val nuevaCantidad = if (movimiento.tipo == TipoMovimiento.INGRESO) {
-            producto.cantidadDisponible + movimiento.cantidad
+        val esSalida = movimiento.tipo == TipoMovimiento.SALIDA
+
+        if (esSalida) {
+            if (producto.cantidadDisponible < movimiento.cantidad) {
+                return@withContext Result.failure(Exception("La cantidad solicitada excede el stock disponible (${producto.cantidadDisponible})."))
+            }
+
+            try {
+                val response = ClienteRetrofit.servicioApi.enviarMovimientoRemote(movimiento)
+                if (response.isSuccessful) {
+                    val nuevaCantidad = producto.cantidadDisponible - movimiento.cantidad
+                    val productoActualizado = producto.copy(cantidadDisponible = nuevaCantidad, version = producto.version + 1)
+                    productoDao.actualizarProducto(productoActualizado)
+                    val movimientoFinal = movimiento.copy(sincronizado = true)
+                    movimientoDao.insertarMovimiento(movimientoFinal)
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("El servidor rechazó la venta: El stock fue actualizado o consumido por otro dispositivo."))
+                }
+            } catch (_: Exception) {
+                Result.failure(Exception("Requerida conexión a internet para realizar ventas en tiempo real y evitar descuadres de stock."))
+            }
         } else {
-            if (producto.cantidadDisponible < movimiento.cantidad) return@withContext false
-            producto.cantidadDisponible - movimiento.cantidad
+            val nuevaCantidad = producto.cantidadDisponible + movimiento.cantidad
+            val productoActualizado = producto.copy(cantidadDisponible = nuevaCantidad, version = producto.version + 1)
+            productoDao.actualizarProducto(productoActualizado)
+
+            var fueEnviado = false
+            try {
+                val response = ClienteRetrofit.servicioApi.enviarMovimientoRemote(movimiento)
+                fueEnviado = response.isSuccessful
+            } catch (_: Exception) {
+                fueEnviado = false
+            }
+
+            val movimientoFinal = movimiento.copy(sincronizado = fueEnviado)
+            movimientoDao.insertarMovimiento(movimientoFinal)
+            Result.success(Unit)
         }
-
-        val productoActualizado = producto.copy(cantidadDisponible = nuevaCantidad, version = producto.version + 1)
-        productoDao.actualizarProducto(productoActualizado)
-
-        // Intentar enviar a la API
-        var fueEnviado = false
-        try {
-            val response = ClienteRetrofit.servicioApi.enviarMovimientoRemote(movimiento)
-            fueEnviado = response.isSuccessful
-        } catch (_: Exception) {
-            fueEnviado = false
-        }
-
-        val movimientoFinal = movimiento.copy(sincronizado = fueEnviado)
-        movimientoDao.insertarMovimiento(movimientoFinal)
-        true
     }
 
     suspend fun sincronizarMovimientosPendientes(): Int = withContext(Dispatchers.IO) {
@@ -97,6 +117,13 @@ class CappucareRepository(
             Result.success(remotos.size)
         } catch (e: Exception) {
             Result.failure(e)
+        }
+    }
+
+    suspend fun verificarYNotificarStockBajo(context: Context) = withContext(Dispatchers.IO) {
+        val criticos = productoDao.obtenerProductosStockBajoDirecto()
+        if (criticos.isNotEmpty()) {
+            NotificacionHelper.enviarNotificacionResumenStockBajo(context, criticos)
         }
     }
 

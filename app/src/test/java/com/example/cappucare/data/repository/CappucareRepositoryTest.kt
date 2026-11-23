@@ -6,7 +6,6 @@ import com.example.cappucare.data.model.Categoria
 import com.example.cappucare.data.model.Movimiento
 import com.example.cappucare.data.model.Producto
 import com.example.cappucare.data.model.TipoMovimiento
-import io.kotest.matchers.booleans.shouldBeFalse
 import io.kotest.matchers.booleans.shouldBeTrue
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
@@ -56,7 +55,7 @@ class CappucareRepositoryTest {
 
         val resultado = repository.registrarMovimiento(movimiento)
 
-        resultado.shouldBeTrue()
+        resultado.isSuccess.shouldBeTrue()
         coVerify {
             productoDao.actualizarProducto(
                 match { prod ->
@@ -68,7 +67,7 @@ class CappucareRepositoryTest {
     }
 
     @Test
-    @DisplayName("NEGATIVO: Intentar salida con stock insuficiente debe fallar y retornar false")
+    @DisplayName("NEGATIVO: Intentar salida con stock insuficiente debe fallar y retornar failure")
     fun `intentar salida sin stock suficiente debe fallar`() = runTest {
         val productoInicial = Producto(
             id = "MED-103",
@@ -95,14 +94,14 @@ class CappucareRepositoryTest {
 
         val resultado = repository.registrarMovimiento(movimientoSalidaExcesiva)
 
-        resultado.shouldBeFalse()
+        resultado.isFailure.shouldBeTrue()
         coVerify(exactly = 0) { productoDao.actualizarProducto(any()) }
         println("[CASO DE ERROR DETECTADO] Se rechazo la salida de 20 unidades porque el stock disponible era solo 5.")
     }
 
     @Test
-    @DisplayName("NEGATIVO: Intentar registrar movimiento para producto inexistente retorna false")
-    fun `intentar movimiento para producto inexistente retorna false`() = runTest {
+    @DisplayName("NEGATIVO: Intentar registrar movimiento para producto inexistente retorna failure")
+    fun `intentar movimiento para producto inexistente retorna failure`() = runTest {
         val movimiento = Movimiento(
             productoId = "MED-999",
             productoNombre = "Insumo Desconocido",
@@ -116,7 +115,7 @@ class CappucareRepositoryTest {
 
         val resultado = repository.registrarMovimiento(movimiento)
 
-        resultado.shouldBeFalse()
+        resultado.isFailure.shouldBeTrue()
         println("[CASO DE ERROR DETECTADO] El sistema bloqueo el movimiento porque el insumo MED-999 no existe en la BD.")
     }
 

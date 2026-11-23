@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.cappucare.ui.utils.ValidadoresHelper
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 @Composable
@@ -150,8 +151,9 @@ fun PantallaLogin(
 
             Button(
                 onClick = {
-                    if (username.trim().isEmpty() || password.trim().isEmpty()) {
-                        errorMensaje = "Por favor ingresa usuario y contraseña"
+                    val validacion = ValidadoresHelper.validarLogin(username, password)
+                    if (!validacion.esValido) {
+                        errorMensaje = validacion.errores.values.firstOrNull() ?: "Por favor ingresa usuario y contraseña"
                         return@Button
                     }
 

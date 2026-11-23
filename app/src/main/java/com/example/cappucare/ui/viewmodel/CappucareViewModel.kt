@@ -9,7 +9,9 @@ import com.example.cappucare.data.model.*
 import com.example.cappucare.data.remote.ClienteRetrofit
 import com.example.cappucare.data.repository.CappucareRepository
 import com.example.cappucare.ui.utils.InfoClimaDia
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class CappucareViewModel(application: Application) : AndroidViewModel(application) {
@@ -77,9 +79,19 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
 
         actualizarCantidadPendientes()
         cargarClimaActual()
-        sincronizarConBackend()
 
         ClienteRetrofit.tokenJwtSupplier = { sesionManager.obtenerTokenJwt() }
+
+        iniciarAutoRefrescoEnVivo()
+    }
+
+    private fun iniciarAutoRefrescoEnVivo() {
+        viewModelScope.launch {
+            while (isActive) {
+                sincronizarConBackend()
+                delay(4000)
+            }
+        }
     }
 
     fun iniciarSesion(
@@ -188,12 +200,12 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
                 usuarioResponsable = usuarioResponsable.trim()
             )
 
-            val exito = repository.registrarMovimiento(movimiento)
+            val resultado = repository.registrarMovimiento(movimiento)
             actualizarCantidadPendientes()
-            if (exito) {
+            resultado.onSuccess {
                 onSuccess()
-            } else {
-                onError("No hay suficiente stock disponible para realizar la salida.")
+            }.onFailure { err ->
+                onError(err.message ?: "No fue posible realizar la operación.")
             }
         }
     }
@@ -212,8 +224,10 @@ class CappucareViewModel(application: Application) : AndroidViewModel(applicatio
 
             resDescarga.onSuccess { total ->
                 estadoSincronizacion.value = "Éxito ($subidos subidos, $total descargados)"
+                repository.verificarYNotificarStockBajo(getApplication())
             }.onFailure { err ->
                 estadoSincronizacion.value = "Sin conexión: ${err.localizedMessage}"
+                repository.verificarYNotificarStockBajo(getApplication())
             }
             actualizarCantidadPendientes()
             cargarClimaActual()

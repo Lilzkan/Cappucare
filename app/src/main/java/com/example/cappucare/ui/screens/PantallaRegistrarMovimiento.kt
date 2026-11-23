@@ -27,6 +27,7 @@ import com.example.cappucare.ui.components.DialogoExitoAnimado
 import com.example.cappucare.ui.components.SelectorSquishTipoMovimiento
 import com.example.cappucare.ui.utils.NotificacionHelper
 import com.example.cappucare.ui.utils.ValidadoresHelper
+import com.example.cappucare.ui.utils.VibradorHelper
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -280,6 +281,7 @@ fun PantallaRegistrarMovimiento(
                                 motivo = motivo,
                                 usuarioResponsable = usuarioResponsable,
                                 onSuccess = {
+                                    VibradorHelper.vibrarSuave(context)
                                     if (nuevoStockCalculado <= currentProduct.stockMinimo) {
                                         NotificacionHelper.enviarNotificacionStockBajo(
                                             context = context,

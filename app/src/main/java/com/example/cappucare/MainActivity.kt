@@ -38,6 +38,7 @@ import com.example.cappucare.navigation.Screen
 import com.example.cappucare.navigation.pantallasNavegacionInferior
 import com.example.cappucare.ui.theme.CappucareTheme
 import com.example.cappucare.ui.utils.NotificacionHelper
+import com.example.cappucare.ui.utils.SincronizacionFondoWorker
 import com.example.cappucare.ui.viewmodel.CappucareViewModel
 
 class MainActivity : ComponentActivity() {
@@ -70,6 +71,9 @@ fun MainAppScreen() {
 
     LaunchedEffect(Unit) {
         NotificacionHelper.crearCanalNotificaciones(context)
+        SincronizacionFondoWorker.programarSincronizacionFondo(context)
+        SincronizacionFondoWorker.programarSincronizacionInmediataFondo(context)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val hasPermission = ContextCompat.checkSelfPermission(
                 context,
